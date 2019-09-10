@@ -22,6 +22,15 @@ let inputOutputPairs =
     """a
     b"""
 
+    "a. new line. b",
+    """a.
+    b"""
+
+    "quote I am here close quote new line. He flinched.",
+    """"I am here,"
+    He flinched.
+    """
+
     "I see. Then there's really nothing I can do, is there newline? I suppose not. Newline. Farewell.",
     "I see. Then there's really nothing I can do, is there?
     I suppose not.
@@ -35,9 +44,9 @@ let inputOutputPairs =
     ] |> List.map (fun (input, output) -> input.Replace(Environment.NewLine+"    ", Environment.NewLine), output.Replace(Environment.NewLine+"    ", Environment.NewLine))
 
 let checkTransform(input:string, expected:string) =
-    test (input) {
+    test (input.Replace(Environment.NewLine, " ") |> String.trimN 12) {
         let actual = replaceKeywordsAndFixPunctionation input
-        Expect.equal actual expected "Text was not transformed correctly"
+        Expect.equal actual expected ("Text was not transformed correctly. Input:\n" + input)
     };
 
 [<Tests>]

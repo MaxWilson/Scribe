@@ -1,13 +1,9 @@
-﻿
-#I """bin\Debug"""
-#r """Microsoft.CognitiveServices.Speech.csharp.dll"""
-#r """netstandard"""
-#r """NAudio.dll"""
+﻿#I """bin\Debug"""
 
-#load "Program.fs"
+#load "Transforms.fs"
 
-open Wilson.Scribe
-
+open Wilson.Scribe.Transforms
+open System
 
 let replaceKeywordsAndFixPunctionation str =
     let tokens = tokenize str
@@ -42,13 +38,13 @@ let replaceKeywordsAndFixPunctionation str =
             | _ -> None
         | _ -> None
     let (|NewLine|_|) = function
-        | AnyCase "newline" (Punctuation(punc, rest)) ->
+        | OWS(AnyCase "newline" (Punctuation(punc, OWS rest))) ->
             Some(Some punc, rest)
-        | AnyCase "newline" rest ->
+        | OWS(AnyCase "newline" rest) ->
             Some(None, rest)
-        | AnyCase "new" (OWS (AnyCase "line" (Punctuation(punc, rest)))) ->
+        | OWS(AnyCase "new" (OWS (AnyCase "line" (Punctuation(punc, OWS rest))))) ->
             Some(Some punc, rest)
-        | AnyCase "new" (OWS (AnyCase "line" rest)) ->
+        | OWS(AnyCase "new" (OWS (AnyCase "line" (OWS rest)))) ->
             Some(None, rest)
         | _ -> None
     let (|OpenQuote|_|) = function
@@ -69,6 +65,7 @@ let replaceKeywordsAndFixPunctionation str =
     let rec helper = function
         | Punctuation(punc, OWS (CloseQuote (OWS (NewLine(_, (Word(word, rest))))))) -> punc::"\""::newLine::(helper (capitalize word::rest))
         | Punctuation(punc, OWS (CloseQuote rest)) -> punc::"\""::(helper rest)
+        | OWS(Punctuation(punc, OWS(NewLine(_, OWS rest)))) -> punc::helper(newLine::rest)
         | OWS(NewLine(Some punc, rest)) -> punc::newLine::helper(rest)
         | OWS(NewLine(None, rest)) -> newLine::helper(rest)
         | Word(word, OWS (CloseQuote rest)) -> word::","::"\""::helper rest
@@ -93,7 +90,8 @@ let replaceKeywordsAndFixPunctionation str =
         | [] -> []
     System.String.Join("", tokens |> helper)
 
-replaceKeywordsAndFixPunctionation "a new line b" |> printfn "%s"
+replaceKeywordsAndFixPunctionation "a. new line. b" |> printfn "%A"
+replaceKeywordsAndFixPunctionation "a new line b" |> printfn "%A"
 replaceKeywordsAndFixPunctionation "close quote" |> printfn "%s"
 replaceKeywordsAndFixPunctionation "quote I am here close quote, said max" |> printfn "%s"
 replaceKeywordsAndFixPunctionation "quote I am here close quote new line, said max" |> printfn "%s"

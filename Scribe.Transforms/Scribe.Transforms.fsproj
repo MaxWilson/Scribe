@@ -8,4 +8,8 @@
     <Compile Include="Transforms.fs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="Script1.fsx" />
+  </ItemGroup>
+
 </Project>

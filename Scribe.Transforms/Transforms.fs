@@ -23,6 +23,8 @@ let tokenize (str: string) =
             txt :: (helper ix)
     helper 0
 
+
+
 let replaceKeywordsAndFixPunctionation str =
     let tokens = tokenize str
     let (|AnyCase|_|) (pattern: string) = function
@@ -56,13 +58,13 @@ let replaceKeywordsAndFixPunctionation str =
             | _ -> None
         | _ -> None
     let (|NewLine|_|) = function
-        | AnyCase "newline" (Punctuation(punc, rest)) ->
+        | OWS(AnyCase "newline" (Punctuation(punc, OWS rest))) ->
             Some(Some punc, rest)
-        | AnyCase "newline" rest ->
+        | OWS(AnyCase "newline" rest) ->
             Some(None, rest)
-        | AnyCase "new" (OWS (AnyCase "line" (Punctuation(punc, rest)))) ->
+        | OWS(AnyCase "new" (OWS (AnyCase "line" (Punctuation(punc, OWS rest))))) ->
             Some(Some punc, rest)
-        | AnyCase "new" (OWS (AnyCase "line" rest)) ->
+        | OWS(AnyCase "new" (OWS (AnyCase "line" (OWS rest)))) ->
             Some(None, rest)
         | _ -> None
     let (|OpenQuote|_|) = function
@@ -83,7 +85,9 @@ let replaceKeywordsAndFixPunctionation str =
     let rec helper = function
         | Punctuation(punc, OWS (CloseQuote (OWS (NewLine(_, (Word(word, rest))))))) -> punc::"\""::newLine::(helper (capitalize word::rest))
         | Punctuation(punc, OWS (CloseQuote rest)) -> punc::"\""::(helper rest)
-        | OWS(NewLine(Some punc, rest)) -> helper(punc::newLine::rest)
+        | OWS(Punctuation(punc, OWS(NewLine(_, OWS rest)))) -> punc::helper(newLine::rest)
+        | OWS(NewLine(Some punc, rest)) -> punc::newLine::helper(rest)
+        | OWS(NewLine(None, rest)) -> newLine::helper(rest)
         | Word(word, OWS (CloseQuote rest)) -> word::","::"\""::helper rest
         | OWS (CloseQuote (OWS (NewLine(Some punc, OWS (Word(word, rest)))))) -> punc::"\""::newLine::(helper (capitalize word::rest))
         | OWS (CloseQuote (OWS (NewLine(None, OWS (Word(word, rest)))))) -> "\""::newLine::(helper (capitalize word::rest))
