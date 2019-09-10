@@ -74,6 +74,13 @@
     </Reference>
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Scribe.Transforms\Scribe.Transforms.fsproj">
+      <Name>Scribe.Transforms</Name>
+      <Project>{ff86832d-e1fa-48f0-b3b7-427e57e14dfb}</Project>
+      <Private>True</Private>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="..\packages\Microsoft.CognitiveServices.Speech.1.6.0\build\net461\Microsoft.CognitiveServices.Speech.targets" Condition="Exists('..\packages\Microsoft.CognitiveServices.Speech.1.6.0\build\net461\Microsoft.CognitiveServices.Speech.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
