@@ -27,9 +27,8 @@ let inputOutputPairs =
     b"""
 
     "quote I am here close quote new line. He flinched.",
-    """"I am here,"
-    He flinched.
-    """
+    """"I am here."
+    He flinched."""
 
     "I see. Then there's really nothing I can do, is there newline? I suppose not. Newline. Farewell.",
     "I see. Then there's really nothing I can do, is there?

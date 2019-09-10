@@ -88,6 +88,7 @@ let replaceKeywordsAndFixPunctionation str =
         | OWS(Punctuation(punc, OWS(NewLine(_, OWS rest)))) -> punc::helper(newLine::rest)
         | OWS(NewLine(Some punc, rest)) -> punc::newLine::helper(rest)
         | OWS(NewLine(None, rest)) -> newLine::helper(rest)
+        | Word(word, OWS (CloseQuote (NewLine(Some(punc), rest)))) -> word::punc::"\""::newLine::helper rest
         | Word(word, OWS (CloseQuote rest)) -> word::","::"\""::helper rest
         | OWS (CloseQuote (OWS (NewLine(Some punc, OWS (Word(word, rest)))))) -> punc::"\""::newLine::(helper (capitalize word::rest))
         | OWS (CloseQuote (OWS (NewLine(None, OWS (Word(word, rest)))))) -> "\""::newLine::(helper (capitalize word::rest))
